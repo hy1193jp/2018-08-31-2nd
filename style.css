@@ -1,0 +1,48 @@
+* {
+  /* margin: 0; */ 
+  padding: 0;
+  border: 0;
+}
+
+body {
+  background: #dff;
+  font: 10px sans-serif;
+}
+
+/* canvas {
+    float: left;
+} */
+
+img {
+  border: 2px solid #ccc;
+}
+
+p {
+    margin-top: 1em;
+}
+    
+.success {
+    clear: both;
+	background-color: #dfd;
+}
+.fail {
+	background-color: #f00;
+}
+
+#holder { 
+	border: 5px dashed #ccc; 
+	width : 400px; 
+	height: 50px; 
+	/* margin: 20px auto; */
+}
+#holder.hover {
+	 border: 5px dashed #f33; 
+}
+
+#filename {
+    margin-right: 1em;
+}
+
+#debug {
+    display: none;
+}
