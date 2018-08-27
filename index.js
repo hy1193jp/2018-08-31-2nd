@@ -218,6 +218,53 @@ if (!HTMLCanvasElement.prototype.toBlob) {
  });
 }
 
+// ファイル選択ダイアログ
+function handleFileSelect(evt) {
+    var files = evt.target.files; // FileList object
+
+    // Loop through the FileList and render image files as thumbnails.
+    for (var i = 0, f; f = files[i]; i++) {
+
+      // Only process image files.
+      if (!f.type.match('image.*')) {
+        continue;
+      }
+
+      var reader = new FileReader();
+
+      // Closure to capture the file information.
+      reader.onload = (function(theFile) {
+        return function(e) {
+          // Render thumbnail.
+          var span = document.createElement('span');
+          span.innerHTML = ['<img class="thumb" src="', e.target.result,
+                            '" title="', escape(theFile.name), '"/>'].join('');
+          document.getElementById('list').insertBefore(span, null);
+        };
+      })(f);
+
+      // Read in the image file as a data URL.
+      reader.readAsDataURL(f);
+    }
+}
+
+document.getElementById('files').addEventListener('change', handleFileSelect, false);
+
+// ドラッグ　&　ドロップ
+function allowDrop(ev)  {
+      ev.preventDefault();
+ }
+ 
+ function drag(ev)  {
+      ev.dataTransfer.setData("text", ev.target.id);
+ }
+ 
+ function drop(ev)  {
+      ev.preventDefault();
+      var data = ev.dataTransfer.getData("text");
+      ev.target.appendChild(document.getElementById(data));
+ }
+ 
 /*
 image.src = 'http://jsrun.it/assets/U/4/a/U/U4aU6.jpg';
 image.onload = function() {

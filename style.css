@@ -43,6 +43,12 @@ p {
     margin-right: 1em;
 }
 
+.thumb {
+    height: 75px;
+    border: 1px solid #000;
+    margin: 10px 5px 0 0;
+ }
+
 #debug {
     display: none;
 }
