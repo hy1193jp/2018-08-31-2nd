@@ -1,7 +1,8 @@
  var canvas = document.getElementById('src'),
     context = canvas.getContext('2d'),
+	files,        // file list
+	fileIndex,   // current processing number of files
     image = new Image(),
-    ifile,        // image file (drug & dropped)
     draw = {},    // canvas using area
     sele = {},    // canvas selectied area
     drag = {},    // drag start point
@@ -15,6 +16,11 @@ offcanvas.height = 300 * 1.2;
 
 var ASPECT = offcanvas.height / offcanvas.width;    // height / width
 
+/*
+*******************************************************************************
+    canvas edit
+*******************************************************************************
+*/
 function getMousePos(e) {
         var rect = canvas.getBoundingClientRect();
         return {
@@ -130,14 +136,14 @@ function pasteImage() {
         url = URL.createObjectURL(blob);
         photo.src=url;
         photo.onclick=function() {
-            saveAs(blob, ifile.name);
+            saveAs(blob, files[ fileIndex ].name);
         };
     }, 'image/jpeg', 1.0);
 }
 
 function drawSelectedArea() {
     context.drawImage(image, 0, 0, draw.w, draw.h);
-        context.strokeStyle = 'yellow';
+    context.strokeStyle = 'yellow';
     context.strokeRect(sele.x, sele.y, sele.w, sele.h);
     context.beginPath();
     context.rect(sele.x + sele.w - 10, sele.y + sele.h - 10, 10, 10);
@@ -153,18 +159,36 @@ function getIy(y) {
     return y * image.height / draw.h;
 }
 
+/*
+*******************************************************************************
+    File Select | Drag & Drop -> read photo file
+*******************************************************************************
+*/
+// ファイル選択ダイアログ
+function handleFileSelect(evt) {
+    files = evt.target.files; // FileList object
+	console.log(files);
+	fileIndex = 0;
+    nextBtn.onclick(null);
+}
+document.getElementById('files').addEventListener('change', handleFileSelect, false);
 
-// File Drag & Drop
+// Nextボタンがクリックされたとき
+nextBtn.onclick = function (e) {
+	e ? fileIndex ++ : 0;   // first(called) -> 0, click -> ++
+	if ( files && fileIndex < files.length) {
+	    handlePicture ();
+	}
+}
 
+// Drag & Drop holder
 var holder = document.getElementById('holder');
-
 // ブラウザがAPIをサポートしているか
 if (typeof window.FileReader === 'undefined') {
     holder.className = 'fail';
 } else {
     holder.className = 'success';
 }
-
 // ドラッグ中に holder の上にマウスが来たとき
 holder.ondragover = function(){
     this.className = 'hover'; 
@@ -178,28 +202,36 @@ holder.ondragend = function (){
 // ドロップされたとき
 holder.ondrop = function (e) {
     e.preventDefault();
-
     // クラス名を空白にする
 	this.className = '';
-		
 	// ファイルを取得する
-	ifile = e.dataTransfer.files[0];
-    var fn = document.getElementById('filename');
-    fn.innerHTML = ifile.name;
+	fileIndex = 0;
+	files = e.dataTransfer.files;
+	handlePicture();
+};
+	
+function handlePicture () {
+	document.getElementById('fileIndex').innerHTML = fileIndex + 1 + '/' + files.length;
+	document.getElementById('filename').innerHTML = files[ fileIndex ].name;
 	var reader = new FileReader();		
 	reader.onload = function (event) {
-    /* 画像が読み込まれるのを待ってから処理を続行 */
+        /* 画像が読み込まれるのを待ってから処理を続行 */
         context.clearRect(0, 0, canvas.width, canvas.height);
         image.src = event.target.result;
         image.onload = function() {
             init();
-        };
-    };
+		}
+    }
     // ファイルを読み込む（読み込みが完了したら onload が実行される）
-    reader.readAsDataURL(ifile);
+    reader.readAsDataURL(files[ fileIndex ]);
     return false;
-};
+}
 
+/*
+*******************************************************************************
+    Polyfill
+*******************************************************************************
+*/
 // https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toBlob
 if (!HTMLCanvasElement.prototype.toBlob) {
  Object.defineProperty(HTMLCanvasElement.prototype, 'toBlob', {
@@ -212,58 +244,10 @@ if (!HTMLCanvasElement.prototype.toBlob) {
     for (var i=0; i<len; i++ ) {
      arr[i] = binStr.charCodeAt(i);
     }
-
     callback( new Blob( [arr], {type: type || 'image/png'} ) );
   }
  });
 }
-
-// ファイル選択ダイアログ
-function handleFileSelect(evt) {
-    var files = evt.target.files; // FileList object
-
-    // Loop through the FileList and render image files as thumbnails.
-    for (var i = 0, f; f = files[i]; i++) {
-
-      // Only process image files.
-      if (!f.type.match('image.*')) {
-        continue;
-      }
-
-      var reader = new FileReader();
-
-      // Closure to capture the file information.
-      reader.onload = (function(theFile) {
-        return function(e) {
-          // Render thumbnail.
-          var span = document.createElement('span');
-          span.innerHTML = ['<img class="thumb" src="', e.target.result,
-                            '" title="', escape(theFile.name), '"/>'].join('');
-          document.getElementById('list').insertBefore(span, null);
-        };
-      })(f);
-
-      // Read in the image file as a data URL.
-      reader.readAsDataURL(f);
-    }
-}
-
-document.getElementById('files').addEventListener('change', handleFileSelect, false);
-
-// ドラッグ　&　ドロップ
-function allowDrop(ev)  {
-      ev.preventDefault();
- }
- 
- function drag(ev)  {
-      ev.dataTransfer.setData("text", ev.target.id);
- }
- 
- function drop(ev)  {
-      ev.preventDefault();
-      var data = ev.dataTransfer.getData("text");
-      ev.target.appendChild(document.getElementById(data));
- }
  
 /*
 image.src = 'http://jsrun.it/assets/U/4/a/U/U4aU6.jpg';
