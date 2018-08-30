@@ -44,6 +44,7 @@ canvas.onmousedown = function(e) {
 };
 
 canvas.onmouseup = function(e) {
+	console.log('mup');
     pasteImage();
     isResizing = false;
     isMoving = false;
@@ -135,9 +136,6 @@ function pasteImage() {
     offcanvas.toBlob(function(blob) {
         url = URL.createObjectURL(blob);
         photo.src=url;
-        photo.onclick=function() {
-            saveAs(blob, files[ fileIndex ].name);
-        };
     }, 'image/jpeg', 1.0);
 }
 
@@ -166,20 +164,11 @@ function getIy(y) {
 */
 // ファイル選択ダイアログ
 function handleFileSelect(evt) {
-    files = evt.target.files; // FileList object
-	console.log(files);
+    files = evt.target.files; // get FileList object
 	fileIndex = 0;
-    nextBtn.onclick(null);
+    handlePicture();
 }
 document.getElementById('files').addEventListener('change', handleFileSelect, false);
-
-// Nextボタンがクリックされたとき
-nextBtn.onclick = function (e) {
-	e ? fileIndex ++ : 0;   // first(called) -> 0, click -> ++
-	if ( files && fileIndex < files.length) {
-	    handlePicture ();
-	}
-}
 
 // Drag & Drop holder
 var holder = document.getElementById('holder');
@@ -202,14 +191,13 @@ holder.ondragend = function (){
 // ドロップされたとき
 holder.ondrop = function (e) {
     e.preventDefault();
-    // クラス名を空白にする
 	this.className = '';
-	// ファイルを取得する
-	fileIndex = 0;
 	files = e.dataTransfer.files;
+	fileIndex = 0;
 	handlePicture();
 };
-	
+
+// 画像の読み込みと表示
 function handlePicture () {
 	document.getElementById('fileIndex').innerHTML = fileIndex + 1 + '/' + files.length;
 	document.getElementById('filename').innerHTML = files[ fileIndex ].name;
@@ -226,7 +214,36 @@ function handlePicture () {
     reader.readAsDataURL(files[ fileIndex ]);
     return false;
 }
+/*
+*******************************************************************************
+    Nextボタンがクリックされたとき
+*******************************************************************************
+*/
+nextBtn.onclick = function (e) {
+	if ( files ) {
+        offcanvas.toBlob(function(blob) {
+          saveAs(blob, files[ fileIndex ].name);
+        }, 'image/jpeg', 1.0);
+		
+		var thmb = document.getElementById('photo');
+        var clone = thmb.cloneNode(true);
+        var base = document.getElementById('thumbnail')
+		var a = base.appendChild(clone);
+		a.className = 'thumb';
+        /*base.appendChild(clone);
+	          var span = document.createElement('span');
 
+          span.innerHTML = ['<img class="thumb" src="', e.target.result,
+                            '" title="', escape(theFile.name), '"',
+							' draggable="true" ondragstart="console.log(event.target.id)" ', '/>'].join('');
+          document.getElementById('nextBtn').insertBefore(span, null);
+		  */
+	    if ( fileIndex < files.length - 1 ) {
+		    fileIndex ++;
+	        handlePicture ();
+	    }
+    }
+}
 /*
 *******************************************************************************
     Polyfill
