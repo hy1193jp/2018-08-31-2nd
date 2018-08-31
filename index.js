@@ -44,7 +44,6 @@ canvas.onmousedown = function(e) {
 };
 
 canvas.onmouseup = function(e) {
-	console.log('mup');
     pasteImage();
     isResizing = false;
     isMoving = false;
@@ -71,7 +70,9 @@ canvas.onmousemove = function(e) {
     }
 };
 
-function init() {
+// Initialize canvas
+function initCanvas() {
+	context.clearRect( 0, 0, canvas.width, canvas.height ); 
     var sw,    // selected area witdh
         sh;    // selected area height
     if (image.width / canvas.width  > image.height / canvas.height) {
@@ -84,7 +85,6 @@ function init() {
     context.drawImage(image, 0, 0, draw.w, draw.h);
     
     // set selected area
-
     if (image.height / image.width > ASPECT) {
         sw = draw.w - 10;
         sh = sw * ASPECT;
@@ -94,7 +94,6 @@ function init() {
     }
     sele = { x: (draw.w - sw) / 2, y: (draw.h - sh) / 2, w: sw, h: sh };
     drawSelectedArea();
-    pasteImage();
 }
 
 function resizing(e) {
@@ -126,6 +125,7 @@ function moving(e) {
     }
 }
 
+// paste canvas image -> photo area
 function pasteImage() {
     var ctx = offcanvas.getContext('2d');
     ctx.drawImage(image, getIx(sele.x), getIy(sele.y), getIx(sele.w), getIy(sele.h), 0, 0, 300, 360);
@@ -166,7 +166,8 @@ function getIy(y) {
 function handleFileSelect(evt) {
     files = evt.target.files; // get FileList object
 	fileIndex = 0;
-    handlePicture();
+    init();
+	handlePicture();
 }
 document.getElementById('files').addEventListener('change', handleFileSelect, false);
 
@@ -194,6 +195,7 @@ holder.ondrop = function (e) {
 	this.className = '';
 	files = e.dataTransfer.files;
 	fileIndex = 0;
+	init();
 	handlePicture();
 };
 
@@ -207,7 +209,8 @@ function handlePicture () {
         context.clearRect(0, 0, canvas.width, canvas.height);
         image.src = event.target.result;
         image.onload = function() {
-            init();
+            initCanvas();
+			pasteImage();
 		}
     }
     // ファイルを読み込む（読み込みが完了したら onload が実行される）
@@ -230,20 +233,27 @@ nextBtn.onclick = function (e) {
         var base = document.getElementById('thumbnail')
 		var a = base.appendChild(clone);
 		a.className = 'thumb';
-        /*base.appendChild(clone);
-	          var span = document.createElement('span');
 
-          span.innerHTML = ['<img class="thumb" src="', e.target.result,
-                            '" title="', escape(theFile.name), '"',
-							' draggable="true" ondragstart="console.log(event.target.id)" ', '/>'].join('');
-          document.getElementById('nextBtn').insertBefore(span, null);
-		  */
 	    if ( fileIndex < files.length - 1 ) {
 		    fileIndex ++;
 	        handlePicture ();
 	    }
     }
 }
+/*
+*******************************************************************************
+    Initialize
+*******************************************************************************
+*/
+function init() {
+	initCanvas();
+	
+	// clear thumbnail picture
+	var thumb = document.getElementById('thumbnail')
+	while (thumb.hasChildNodes()) {   
+      thumb.removeChild(thumb.firstChild);
+	}
+} 
 /*
 *******************************************************************************
     Polyfill
