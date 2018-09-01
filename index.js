@@ -223,22 +223,27 @@ function handlePicture () {
 *******************************************************************************
 */
 nextBtn.onclick = function (e) {
-	if ( files ) {
-        offcanvas.toBlob(function(blob) {
-          saveAs(blob, files[ fileIndex ].name);
-        }, 'image/jpeg', 1.0);
-		
-		var thmb = document.getElementById('photo');
-        var clone = thmb.cloneNode(true);
-        var base = document.getElementById('thumbnail')
-		var a = base.appendChild(clone);
-		a.className = 'thumb';
+	if ( !files || fileIndex == files.length ) {   // file not selected || over end of file
+		return false;
+	}
+	
+    offcanvas.toBlob(function(blob) {  // save current image
+        saveAs(blob, files[ fileIndex ].name);
+    }, 'image/jpeg', 1.0);
+	
+    // thmbnail picture	
+	var thmb = document.getElementById('photo');
+    var clone = thmb.cloneNode(true);
+    var base = document.getElementById('thumbnail')
+	var a = base.appendChild(clone);
+	a.className = 'thumb';
+	a.title = files[ fileIndex ].name;
 
-	    if ( fileIndex < files.length - 1 ) {
-		    fileIndex ++;
-	        handlePicture ();
-	    }
-    }
+	// Next
+	fileIndex ++;
+	if ( fileIndex < files.length ) {  // fileIndex == files.lengh -> over end of file
+		handlePicture ();
+	}
 }
 /*
 *******************************************************************************

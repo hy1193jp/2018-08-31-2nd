@@ -81,6 +81,12 @@ button i {/*中央のアイコン*/
 }
 .material-icons.md-36 { font-size: 36px; }
 
+#thumbnail {
+	position: absolute;
+	left: 300px;
+	top: 10px;
+}
+
 .thumb {
     height: 75px;
 	width: auto;
