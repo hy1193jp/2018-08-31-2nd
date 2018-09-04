@@ -88,12 +88,16 @@ button i {/*中央のアイコン*/
 	left: 300px;
 	top: 10px;
 }
-
-.thumb {
-    height: 75px;
-	width: auto;
-    border: 1px solid #000;
+.thumbBox {
+    width: 50px;
+	height: 60px;
+    background: #eee;
     margin: 10px 5px 0 0;
+	float: left;
+ }
+ .thumbPic {
+	 width: 50px;
+	 height: auto;
  }
 
 #debug {

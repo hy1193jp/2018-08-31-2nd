@@ -233,10 +233,10 @@ nextBtn.onclick = function (e) {
 	
     // thmbnail picture	
 	var thmb = document.getElementById('photo');
-    var clone = thmb.cloneNode(true);
-    var base = document.getElementById('thumbnail')
-	var a = base.appendChild(clone);
-	a.className = 'thumb';
+        var clone = thmb.cloneNode(true);
+        var base = document.getElementById('thumbnail');
+	var a = base.childNodes[fileIndex].appendChild(clone);
+        a.className = 'thumbPic';
 	a.title = files[ fileIndex ].name;
 
 	// Next
@@ -256,7 +256,14 @@ function init() {
 	// clear thumbnail picture
 	var thumb = document.getElementById('thumbnail')
 	while (thumb.hasChildNodes()) {   
-      thumb.removeChild(thumb.firstChild);
+            thumb.removeChild(thumb.firstChild);
+	}
+
+	// prepare img box
+	for ( var i = 0; i < files.length; i++ ) {
+	    var t = document.createElement('div');
+	    t.className = 'thumbBox';
+	    var a = thumb.appendChild(t);
 	}
 } 
 /*
