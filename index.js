@@ -226,12 +226,17 @@ nextBtn.onclick = function (e) {
 	if ( !files || fileIndex == files.length ) {   // file not selected || over end of file
 		return false;
 	}
-	
-    offcanvas.toBlob(function(blob) {  // save current image
-        saveAs(blob, files[ fileIndex ].name);
-    }, 'image/jpeg', 1.0);
-	
-    // thmbnail picture	
+    // 2021.7.13 callback -> fileIndex++ -> saveAs を修正 ref. https://developer.mozilla.org/ja/docs/Web/API/HTMLCanvasElement/toBlob
+    function blobCallback( files, fileIndex ) {
+      return function( b ) {
+        //console.log(files, fileIndex);
+        saveAs( b, files[ fileIndex ].name );
+      }
+    }
+
+    offcanvas.toBlob( blobCallback( files, fileIndex ), 'image/jpeg', 1.0);
+
+    // thmbnail picture
 	var thmb = document.getElementById('photo');
     var clone = thmb.cloneNode(true);
     var base = document.getElementById('thumbnail')
